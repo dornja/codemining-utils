@@ -11,6 +11,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import org.apache.commons.lang.math.RandomUtils;
 
@@ -30,6 +31,14 @@ import com.google.common.collect.Multiset;
  */
 public final class SampleUtils {
 
+	/** set a seeded random number generator, for deterministic
+	 * reproducibility
+	 */
+	private static Random randomizer = null;
+	
+	public static void setRandomizer(Random randomizer) {
+		SampleUtils.randomizer = randomizer;
+	}
 	/**
 	 * Get a uniformly random element from a Collection.
 	 * 
@@ -37,8 +46,9 @@ public final class SampleUtils {
 	 * @return
 	 */
 	public static <T> T getRandomElement(final Collection<T> collection) {
-		final int randPos = RandomUtils
-				.nextInt(checkNotNull(collection).size());
+		final int randPos = SampleUtils.randomizer == null ? 
+				RandomUtils.nextInt(checkNotNull(collection).size()) :
+					randomizer.nextInt(checkNotNull(collection).size());
 
 		T selected = null;
 		int index = 0;
@@ -59,7 +69,9 @@ public final class SampleUtils {
 	 * @return
 	 */
 	public static <T> T getRandomElement(final Multiset<T> set) {
-		final int randPos = RandomUtils.nextInt(checkNotNull(set).size());
+		final int randPos = SampleUtils.randomizer == null ?
+				RandomUtils.nextInt(checkNotNull(set).size()) :
+					randomizer.nextInt(checkNotNull(set).size());
 
 		T selected = null;
 		int i = 0;
@@ -97,7 +109,10 @@ public final class SampleUtils {
 			weights[i] = prob;
 		}
 
-		final double randomPoint = RandomUtils.nextDouble() * sum;
+		final double randomPoint = 
+				SampleUtils.randomizer == null ?
+				RandomUtils.nextDouble() * sum :
+				SampleUtils.randomizer.nextDouble() * sum;
 		double partialSum = 0;
 		for (int i = 0; i < log2ProbWeights.length; i++) {
 			partialSum += weights[i];
@@ -128,7 +143,10 @@ public final class SampleUtils {
 			sum += prob;
 		}
 
-		final double randomPoint = RandomUtils.nextDouble() * sum;
+		final double randomPoint = 
+				SampleUtils.randomizer == null ?
+				RandomUtils.nextDouble() * sum :
+				SampleUtils.randomizer.nextDouble() * sum;
 		double partialSum = 0;
 		for (final Entry<T, Double> entry : weights.entrySet()) {
 			partialSum += entry.getValue();
